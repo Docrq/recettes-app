@@ -1,10 +1,18 @@
 import React from 'react';
+import Recipe from './Recipe';
 
+// Importation des images
+import spaghettiImage from '../images/spaghetti-carbonara.webp';
+import saladeCesarImage from '../images/salade-cesar.webp';
+import pizzaMargheritaImage from '../images/pizza-margherita.webp';
+import saladeConcombreImage from '../images/salade-concombre.webp';
+
+// Définition des recettes
 const recipes = [
   {
     id: 1,
     name: 'Spaghetti Carbonara',
-    image: 'https://via.placeholder.com/200', // Remplace par une vraie image
+    image: spaghettiImage,
     calories: 400,
     ingredients: [
       '200g de spaghetti',
@@ -18,7 +26,7 @@ const recipes = [
   {
     id: 2,
     name: 'Salade César',
-    image: 'https://via.placeholder.com/200', // Remplace par une vraie image
+    image: saladeCesarImage,
     calories: 300,
     ingredients: [
       '1 romaine',
@@ -32,7 +40,7 @@ const recipes = [
   {
     id: 3,
     name: 'Pizza Margherita',
-    image: 'https://via.placeholder.com/200', // Remplace par une vraie image
+    image: pizzaMargheritaImage,
     calories: 600,
     ingredients: [
       '1 pâte à pizza',
@@ -46,12 +54,13 @@ const recipes = [
   {
     id: 4,
     name: 'Salade de concombre',
-    image: 'https://via.placeholder.com/200',
+    image: saladeConcombreImage,
     calories: 70,
     ingredients: [
       '100g de concombre',
       '100g de tomates cerise'
-    ]
+    ],
+    instructions: 'Laver et couper le concombre et les tomates. Mélanger les deux et servir frais.',
   },
 ];
 
@@ -59,21 +68,7 @@ function RecipeList() {
   return (
     <div className="recipe-grid">
       {recipes.map((recipe) => (
-        <div key={recipe.id} className="recipe-card">
-          <img src={recipe.image} alt={recipe.name} className="recipe-image" />
-          <div className="recipe-details">
-            <h3>{recipe.name}</h3>
-            <p><strong>Calories :</strong> {recipe.calories}</p>
-            <h4>Ingrédients :</h4>
-            <ul>
-              {recipe.ingredients.map((ingredient, index) => (
-                <li key={index}>{ingredient}</li>
-              ))}
-            </ul>
-            <h4>Instructions :</h4>
-            <p>{recipe.instructions}</p>
-          </div>
-        </div>
+        <Recipe key={recipe.id} recipe={recipe} />
       ))}
     </div>
   );

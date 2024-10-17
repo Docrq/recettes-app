@@ -1,0 +1,18 @@
+[
+    {
+      "id": 1,
+      "name": "Spaghetti Carbonara",
+      "image": "./images/spaghetti-carbonara.png", // Assurez-vous que le nom de fichier correspond à celui de l'image
+      "calories": 400,
+      "ingredients": [
+        "200g de spaghetti",
+        "100g de lardons",
+        "2 œufs",
+        "50g de parmesan",
+        "Sel et poivre"
+      ],
+      "instructions": "Faire cuire les spaghetti. Dans une poêle, faire revenir les lardons. Battre les œufs et ajouter le parmesan. Mélanger le tout et servir chaud."
+    }
+    // Ajoute d'autres recettes ici au même format
+  ]
+  
