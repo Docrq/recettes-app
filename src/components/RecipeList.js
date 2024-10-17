@@ -43,6 +43,16 @@ const recipes = [
     ],
     instructions: 'Étaler la pâte, ajouter la tomate et la mozzarella. Cuire au four pendant 15 minutes à 220°C. Ajouter le basilic et l\'huile d\'olive avant de servir.',
   },
+  {
+    id: 4,
+    name: 'Salade de concombre',
+    image: 'https://via.placeholder.com/200',
+    calories: 70,
+    ingredients: [
+      '100g de concombre',
+      '100g de tomates cerise'
+    ]
+  },
 ];
 
 function RecipeList() {
