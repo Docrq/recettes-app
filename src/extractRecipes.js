@@ -1,72 +1,79 @@
-const mammoth = require("mammoth");
-const fs = require("fs").promises;
-const path = require("path");
+const fs = require('fs');
+const mammoth = require('mammoth');
+const path = require('path');
 
-const inputPath = path.join(__dirname, "document-word-ajout-de-recettes-.docx");
-const outputPath = path.join(__dirname, "recipes.json");
+// Chemins des fichiers
+const wordFilePath = path.join(__dirname, 'documents', 'document-word-ajout-de-recettes-.docx');
+const jsonFilePath = path.join(__dirname, 'recipes.json');
 
-async function extractAndSaveRecipe() {
-    try {
-        console.log("Début du script");
-        console.log(`Chemin du fichier Word: ${inputPath}`);
-        console.log(`Chemin du fichier de sortie JSON: ${outputPath}`);
+// Fonction pour parser la recette
+const parseRecipe = (text) => {
+  const lines = text.split('\n');
+  const name = lines[0].replace('Nom de la Recette: ', '').trim();
+  const ingredients = lines.slice(3, lines.indexOf('Instructions:')).map(line => line.replace('- ', '').trim());
+  const instructions = lines.slice(lines.indexOf('Instructions:') + 1).join('\n').trim();
 
-        console.log("Vérification de l'existence du fichier Word...");
-        await fs.access(inputPath);
-        console.log("Le fichier Word existe.");
+  return {
+    name,
+    ingredients,
+    instructions,
+  };
+};
 
-        console.log("Lecture du fichier Word...");
-        const result = await mammoth.extractRawText({ path: inputPath });
-        const text = result.value;
+// Fonction pour extraire et sauvegarder la recette
+const extractAndSaveRecipe = () => {
+  mammoth.extractRawText({ path: wordFilePath })
+    .then(result => {
+      const text = result.value;
+      console.log("Texte extrait :", text);
 
-        if (!text.trim()) {
-            throw new Error("Aucun texte n'a été extrait du fichier Word.");
+      // Traiter le texte extrait pour construire la recette
+      const recipe = parseRecipe(text);
+      console.log("Recette à enregistrer :", recipe); // Log pour vérifier la recette
+
+      // Lire les recettes existantes
+      fs.readFile(jsonFilePath, 'utf-8', (err, data) => {
+        if (err) {
+          console.error('Erreur lors de la lecture de recipes.json:', err);
+          return;
         }
 
-        // Parsing du texte extrait
-        const lines = text.split('\n').filter(line => line.trim() !== '');
-        const name = lines[0].replace('Nom de la Recette:', '').trim();
-        const ingredientsIndex = lines.findIndex(line => line.includes('Ingrédients:'));
-        const instructionsIndex = lines.findIndex(line => line.includes('Instructions:'));
-
-        const ingredients = lines.slice(ingredientsIndex + 1, instructionsIndex)
-            .filter(line => line.trim().startsWith('-'))
-            .map(line => line.replace('-', '').trim());
-
-        const instructions = lines.slice(instructionsIndex + 1).join('\n');
-
-        const recipe = {
-            id: Date.now(), // Générer un ID unique
-            name: name,
-            image: '', // Vous devrez gérer l'ajout d'images séparément
-            calories: 0, // Vous pouvez ajouter cette information dans votre document Word si nécessaire
-            ingredients: ingredients,
-            instructions: instructions
-        };
-
-        console.log("Recette extraite :", JSON.stringify(recipe, null, 2));
-
-        // Lire les recettes existantes
         let recipes = [];
-        try {
-            const existingData = await fs.readFile(outputPath, 'utf8');
-            recipes = JSON.parse(existingData);
-        } catch (error) {
-            console.log("Aucun fichier de recettes existant trouvé. Création d'un nouveau fichier.");
+        if (data) {
+          try {
+            recipes = JSON.parse(data);
+          } catch (e) {
+            console.error('Erreur de parsing JSON:', e);
+            return;
+          }
         }
 
-        // Ajouter la nouvelle recette
+        // Ajout de la nouvelle recette
         recipes.push(recipe);
+        console.log("Recettes après ajout :", recipes); // Log pour vérifier le tableau de recettes
 
-        // Écrire toutes les recettes dans le fichier
-        console.log("Écriture du fichier JSON...");
-        await fs.writeFile(outputPath, JSON.stringify(recipes, null, 2));
-        console.log(`Recettes enregistrées dans ${outputPath}`);
+        // Sauvegarder dans recipes.json
+        fs.writeFile(jsonFilePath, JSON.stringify(recipes, null, 2), (err) => {
+          if (err) {
+            console.error('Erreur lors de l\'écriture dans recipes.json:', err);
+          } else {
+            console.log('Recette enregistrée dans recipes.json');
+          }
+        });
+      });
+    })
+    .catch(err => {
+      console.error('Erreur lors de l\'extraction:', err);
+    });
+};
 
-        console.log("Fin du script");
-    } catch (err) {
-        console.error("Erreur lors du traitement :", err);
-    }
-}
+// Surveiller le fichier Word
+fs.watch(wordFilePath, (eventType) => {
+  if (eventType === 'change') {
+    console.log('Le fichier a été modifié, extraction en cours...');
+    extractAndSaveRecipe();
+  }
+});
 
+// Appel initial pour extraire la recette
 extractAndSaveRecipe();
