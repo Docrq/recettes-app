@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Recipe from './Recipe';
 
 // Importation des images
@@ -7,8 +7,8 @@ import saladeCesarImage from '../images/salade-cesar.webp';
 import pizzaMargheritaImage from '../images/pizza-margherita.webp';
 import saladeConcombreImage from '../images/salade-concombre.webp';
 
-// Définition des recettes
-const recipes = [
+// Définition des recettes (en option, si tu veux des recettes par défaut)
+const defaultRecipes = [
   {
     id: 1,
     name: 'Spaghetti Carbonara',
@@ -65,6 +65,25 @@ const recipes = [
 ];
 
 function RecipeList() {
+  const [recipes, setRecipes] = useState([]);
+
+  useEffect(() => {
+    // Charger les recettes depuis le fichier JSON
+    fetch('/recipes.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement des recettes');
+        }
+        return response.json();
+      })
+      .then(data => setRecipes(data))
+      .catch(error => {
+        console.error('Erreur lors du chargement des recettes:', error);
+        // Si le chargement échoue, on peut éventuellement utiliser les recettes par défaut
+        setRecipes(defaultRecipes);
+      });
+  }, []);
+
   return (
     <div className="recipe-grid">
       {recipes.map((recipe) => (
