@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Recipe from './Recipe';
 
-// Importation des images
+// Importation des images (si nécessaire pour les recettes par défaut)
 import spaghettiImage from '../images/spaghetti-carbonara.webp';
 import saladeCesarImage from '../images/salade-cesar.webp';
 import pizzaMargheritaImage from '../images/pizza-margherita.webp';
 import saladeConcombreImage from '../images/salade-concombre.webp';
 
-// Définition des recettes (en option, si tu veux des recettes par défaut)
+// Définition des recettes par défaut
 const defaultRecipes = [
   {
     id: 1,
@@ -76,19 +76,32 @@ function RecipeList() {
         }
         return response.json();
       })
-      .then(data => setRecipes(data))
+      .then(data => {
+        console.log('Données chargées:', data);
+        // Vérifiez que les données sont bien un tableau
+        if (Array.isArray(data)) {
+          setRecipes(data);
+        } else {
+          console.error('Les données chargées ne sont pas un tableau. Utilisation des recettes par défaut.');
+          setRecipes(defaultRecipes);
+        }
+      })
       .catch(error => {
         console.error('Erreur lors du chargement des recettes:', error);
-        // Si le chargement échoue, on peut éventuellement utiliser les recettes par défaut
+        // Utilisation des recettes par défaut en cas d'erreur
         setRecipes(defaultRecipes);
       });
   }, []);
 
   return (
     <div className="recipe-grid">
-      {recipes.map((recipe) => (
-        <Recipe key={recipe.id} recipe={recipe} />
-      ))}
+      {Array.isArray(recipes) && recipes.length > 0 ? (
+        recipes.map((recipe, index) => (
+          <Recipe key={index} recipe={recipe} />
+        ))
+      ) : (
+        <p>Aucune recette trouvée.</p>
+      )}
     </div>
   );
 }
